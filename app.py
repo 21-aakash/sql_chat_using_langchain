@@ -17,8 +17,32 @@ load_dotenv()
 # Automatically retrieve the Groq API key from the environment variables
 api_key = os.getenv("GROQ_API_KEY")
 
-st.set_page_config(page_title="LangChain: Chat with SQL DB", page_icon="🦜")
-st.title("👽 SkySQL-LangChain")
+st.set_page_config(page_title="SkyChat", page_icon="👽")
+st.title("👽SkyChat: Chat with Database")
+
+# Custom CSS for font colors and styles
+st.markdown("""
+    <style>
+    .stTextInput, .stTextArea, .stChatMessage, .stButton, .stSelectbox, .stRadio, .stSidebar > div {
+        color: #ffffff;
+    }
+    .stMarkdown p {
+        color: #ffffff;
+    }
+    .stTitle h1 {
+        color: #ffa500;  /* Orange color for title */
+    }
+    .stSidebar h1, .stSidebar h2, .stSidebar h3 {
+        color: #00ff00;  /* Green color for sidebar headings */
+    }
+    .stSidebar .stTextInput, .stSidebar .stTextArea, .stSidebar .stButton, .stSidebar .stSelectbox, .stSidebar .stRadio {
+        color: #00ff00;  /* Green color for sidebar inputs */
+    }
+    body {
+        background-color: #000000;  /* Black background */
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 LOCALDB = "USE_LOCALDB"
 MYSQL = "USE_MYSQL"
@@ -72,20 +96,26 @@ agent = create_sql_agent(
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
 )
 
+# Initialize or clear message history
 if "messages" not in st.session_state or st.sidebar.button("Clear message history"):
     st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+# Display chat messages using st.chat_message with custom colors
+for msg in st.session_state["messages"]:
+    if msg["role"] == "user":
+        st.chat_message("user").write(msg["content"], unsafe_allow_html=True)
+    else:
+        st.chat_message("assistant").write(msg["content"], unsafe_allow_html=True)
 
+# Handle user input
 user_query = st.chat_input(placeholder="Ask anything from the database")
 
 if user_query:
-    st.session_state.messages.append({"role": "user", "content": user_query})
-    st.chat_message("user").write(user_query)
+    st.session_state["messages"].append({"role": "user", "content": user_query})
+    st.chat_message("user").write(user_query, unsafe_allow_html=True)
 
     with st.chat_message("assistant"):
         streamlit_callback = StreamlitCallbackHandler(st.container())
         response = agent.run(user_query, callbacks=[streamlit_callback])
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.write(response)
+        st.session_state["messages"].append({"role": "assistant", "content": response})
+        st.write(response, unsafe_allow_html=True)
