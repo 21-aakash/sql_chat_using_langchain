@@ -18,7 +18,7 @@ load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 
 st.set_page_config(page_title="LangChain: Chat with SQL DB", page_icon="🦜")
-st.title("🦜 LangChain: Chat with SQL DB")
+st.title("👽 SkySQL-LangChain: Chat with SQL Database")
 
 LOCALDB = "USE_LOCALDB"
 MYSQL = "USE_MYSQL"
